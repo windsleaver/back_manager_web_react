@@ -1,13 +1,13 @@
 import React from 'react';
-import { Button } from 'antd';
-import './App.less';
+import {useRoutes} from "react-router-dom";
+import routes from './utils/routes/router'
 
 function App() {
+  const element = useRoutes(routes)
   return (
-    <div className="App">
-      <Button type="primary">Button</Button>
-        <div className="layout_one" />
-    </div>
+      <div>
+        {element}
+      </div>
   );
 }
 
