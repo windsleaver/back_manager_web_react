@@ -4,11 +4,15 @@ import './index.less';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import {BrowserRouter} from "react-router-dom";
+import zhCN from 'antd/lib/locale/zh_CN';
+import {ConfigProvider} from "antd";
 
 ReactDOM.render(
     <React.StrictMode>
         <BrowserRouter>
-            <App/>
+            <ConfigProvider locale={zhCN}>
+                <App/>
+            </ConfigProvider>
         </BrowserRouter>
     </React.StrictMode>,
     document.getElementById('root')

@@ -1,36 +1,71 @@
-import React from 'react';
-import {Form, Input, Button, Checkbox} from 'antd';
+import React, {useState} from 'react';
+import {Form, Input, Button, Checkbox, notification, message} from 'antd';
 import './login.less';
+import {useNavigate} from "react-router-dom";
+import Axios from "../../utils/axios/axios";
+import NetWorkUrl from "../../utils/url/url";
+import {UserOutlined, LockOutlined} from '@ant-design/icons';
 
 function Login() {
-    const onFinish = (values: any) => {
-        console.log('Success:', values);
+    const [isLoading, setIsLoading] = useState(false)
+    let navigate = useNavigate()
+
+    //显示错误通知信息
+    const openNotificationWithIcon = (msg: string) => {
+        notification["error"]({
+            message: '登录失败',
+            description: msg,
+        });
     };
 
-    const onFinishFailed = (errorInfo: any) => {
-        console.log('Failed:', errorInfo);
-    };
+    //登录
+    const login = async (values: any) => {
+        setIsLoading(true)
+        console.log(values.username)
+        let res = await Axios(1, NetWorkUrl.login, {
+            "userName": values.username,
+            "password": values.password
+        })
+        setIsLoading(false)
+        if (res) {
+            if (res.data.success) {
+                console.log(res)
+                sessionStorage.setItem("userName", res.data.data.userName)
+                sessionStorage.setItem("token", res.data.data.userToken)
+                message.success('登录成功！');
+                navigate("/welcome")
+            } else {
+                openNotificationWithIcon(res.data.msg)
+            }
+        }
+    }
+
     return (
         <div className="login_layout">
-            <Form className="login-form" name="basic" labelCol={{span: 8}} wrapperCol={{span: 16}}
-                  initialValues={{remember: true}}
-                  onFinish={onFinish}
-                  onFinishFailed={onFinishFailed}
-                  autoComplete="off">
-                <Form.Item className="login-item" label="用户名：" name="username"
-                           rules={[{required: true, message: 'Please input your username!'}]}>
-                    <Input/>
+            <Form name="normal_login" className="login-form" initialValues={{remember: true}} onFinish={login}>
+                <div>
+                    <h1 className="login-title">登录系统</h1>
+                </div>
+                <Form.Item className="login-item-username" name="username"
+                           rules={[{required: true, message: '请输入用户名!'}]}>
+                    <Input prefix={<UserOutlined className="site-form-item-icon"/>} placeholder="用户名"/>
                 </Form.Item>
-                <Form.Item className="login-item" label="密码：" name="password"
-                           rules={[{required: true, message: 'Please input your password!'}]}>
-                    <Input.Password/>
+                <Form.Item className="login-item-password" name="password"
+                           rules={[{required: true, message: '请输入密码!'}]}>
+                    <Input.Password prefix={<LockOutlined className="site-form-item-icon"/>} type="password"
+                                    placeholder="密码"/>
                 </Form.Item>
-                <Form.Item name="remember" valuePropName="checked" wrapperCol={{offset: 8, span: 16}}>
-                    <Checkbox>Remember me</Checkbox>
+                <Form.Item className="login-item-function">
+                    <Form.Item name="remember" valuePropName="checked" noStyle>
+                        <Checkbox>记住用户名和密码</Checkbox>
+                    </Form.Item>
+                    <a className="login-form-forgot" href="">
+                        忘记密码
+                    </a>
                 </Form.Item>
-                <Form.Item wrapperCol={{offset: 8, span: 16}}>
-                    <Button type="primary" htmlType="submit">
-                        Submit
+                <Form.Item className="login-item-function-button">
+                    <Button className="login-item-button" type="primary" htmlType="submit" loading={isLoading}>
+                        登录
                     </Button>
                 </Form.Item>
             </Form>
